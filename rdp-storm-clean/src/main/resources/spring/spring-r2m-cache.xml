@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+
+
+    <bean id="cacheDao" class="com.jd.mja.rdp.storm.dao.redis.impl.CacheDaoImpl">
+        <property name="cacheR2m" ref="cacheClusterClient"/>
+    </bean>
+
+
+
+    <!--===========R2M配置===========start===========-->
+    <!--  ！！！！！！！！！  注意修改修改 appName 和 zkConnectionStr  ！！！！！！！！！！！！！！  -->
+
+    <bean id="cacheProvider" class="com.wangyin.rediscluster.provider.ZkProvider">
+        <constructor-arg name="appName" value="${cache.r2m.name}"/> <!--请修改为自己的appName-->
+        <constructor-arg name="zkConnectionStr"
+                         value="${cache.r2m.zk}"/>  <!--请修改为所需要使用环境的地址-->
+        <constructor-arg name="zkTimeout" value="25000"/>
+        <constructor-arg name="zkSessionTimeout" value="25000"/>
+    </bean>
+
+    <!--连接池配置-->
+    <!--这里连接配置指的是所有主节点得配置,指的是每一个主节点连接数,其他相关参数参看ApacheCommonPool-->
+    <bean id="redisPoolConfig" class="com.wangyin.r2m.client.jedis.JedisPoolConfig">
+        <property name="blockWhenExhausted" value="false"/> <!--连接池耗尽时是否阻塞-->
+        <property name="maxWaitMillis" value="500" /> <!--连接池耗尽时最大等待时间-->
+        <property name="maxTotal" value="40"/> <!---最大连接数，如果blockWhenExhausted为false会阻塞，为true会抛出异常-->
+        <property name="maxIdle" value="40"/>  <!--最大可以保的空闲连接数量，实际空闲连接数会在 maxIdle与minIdle 之间-->
+        <property name="minIdle" value="0"/> <!-- 最小空闲保持连接数-->
+    </bean>
+    <bean id="cacheClusterConfigProvider" class="com.wangyin.rediscluster.provider.CacheClusterConfigProvider">
+        <property name="providers">
+            <list>
+                <ref bean="cacheProvider"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="cacheClusterClient" class="com.wangyin.rediscluster.client.R2mClusterClient">
+        <property name="maxRedirections" value="5"/>
+        <property name="redisTimeOut" value="500"/>
+        <property name="redisPoolConfig" ref="redisPoolConfig"/>
+        <property name="provider" ref="cacheClusterConfigProvider"/>
+        <!--1.4.0开始支持notifyService配置下发 ，如果不支持请注释掉
+        <property name="notifyService">
+            <bean class="com.wangyin.rediscluster.notification.service.ZkNotifyService">
+                <constructor-arg ref="zkProvider"/>
+            </bean>
+        </property>
+        -->
+    </bean>
+
+</beans>

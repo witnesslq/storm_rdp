@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <groupId>com.jd.mja</groupId>
+    <artifactId>rdp-storm</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+	
+    <modules>
+        <module>rdp-storm-main</module>
+        <module>rdp-storm-common</module>
+        <module>rdp-storm-service</module>
+        <module>rdp-storm-dao</module>
+        <module>rdp-storm-clean</module>
+    </modules>
+	
+    <modelVersion>4.0.0</modelVersion>
+	    <properties>
+            <spring.version>4.1.6.RELEASE</spring.version>
+            <slf4j.version>1.7.12</slf4j.version>
+            <fastjson.version>1.2.16</fastjson.version>
+            <r2m.version>1.4.0</r2m.version>
+        </properties>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.jd.ump</groupId>
+                <artifactId>profiler</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+
+            <!--cooperation project-->
+            <dependency>
+                <groupId>com.jd</groupId>
+                <artifactId>jsf</artifactId>
+                <version>1.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.wangyin.r2m</groupId>
+                <artifactId>r2m-client</artifactId>
+                <version>${r2m.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+
+
+            <!--spring-->
+            <dependency>
+                <!--quartz is needed-->
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <!--quartz is needed-->
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- Transaction dependency is required with Quartz integration -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- 日志文件管理包 -->
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.17</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.18.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <resourceEncoding>UTF-8</resourceEncoding>
+                        <webResources>
+                            <resource>
+                                <filtering>true</filtering>
+                                <directory>src/main/webapp</directory>
+                                <includes>
+                                    <include>**/web.xml</include>
+                                </includes>
+                            </resource>
+                        </webResources>
+                        <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                        <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <my.scope>compile</my.scope>
+
+                <profile.active>dev</profile.active>
+
+
+                <bean.soputNumSourceDEV>3</bean.soputNumSourceDEV>
+                <bean.soputNumSourceJMQ>3</bean.soputNumSourceJMQ>
+                <bean.soputNumSourceKAFKA>3</bean.soputNumSourceKAFKA>
+
+                <bean.boltNumFilter>1</bean.boltNumFilter>
+                <bean.boltNumColl>3</bean.boltNumColl>
+                <bean.boltNumSourceKey>3</bean.boltNumSourceKey>
+
+                <bean.boltNumGetValue>3</bean.boltNumGetValue>
+                <bean.boltNumSplit>3</bean.boltNumSplit>
+                <bean.boltNumDataCacheSave>3</bean.boltNumDataCacheSave>
+
+                <bean.boltNumCacherResultKey>3</bean.boltNumCacherResultKey>
+                <bean.boltNumMemoryResultKey>3</bean.boltNumMemoryResultKey>
+                <bean.boltNumResultGeter>3</bean.boltNumResultGeter>
+                <bean.boltNumResultHbaseSave>3</bean.boltNumResultHbaseSave>
+
+                <bean.clean.persistdevice>1</bean.clean.persistdevice>
+                <bean.clean.conndevice>3</bean.clean.conndevice>
+                <bean.clean.targetcal>3</bean.clean.targetcal>
+                <bean.clean.kafka>3</bean.clean.kafka>
+                <bean.clean.kafkaproduce>3</bean.clean.kafkaproduce>
+                <bean.clean.Keypersist>3</bean.clean.Keypersist>
+                <log.rdp.path>E:\\logs\\</log.rdp.path>
+
+                <mongodb.url>192.168.202.238</mongodb.url>
+                <mongodb.port>27017</mongodb.port>
+
+                <cacheData.r2m.name>jr.sort</cacheData.r2m.name>
+                <cacheData.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</cacheData.r2m.zk>
+
+                <cache.r2m.name>jr.sort</cache.r2m.name>
+                <cache.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</cache.r2m.zk>
+
+                <cacheResData.r2m.name>jr.sort</cacheResData.r2m.name>
+                <cacheResData.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</cacheResData.r2m.zk>
+
+                <device.r2m.name>jr.sort</device.r2m.name>
+                <device.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</device.r2m.zk>
+                <kafka.zk>localhost:2181</kafka.zk>
+                <kafka.bootstrap>localhost:9092</kafka.bootstrap>
+                <kafka.zkRoot>/rdp</kafka.zkRoot>
+
+                <kafka.zkservers>localhost</kafka.zkservers>
+                <kafka.zkport>2181</kafka.zkport>
+
+
+                <result.hbase.dao>hbaseDaoTest</result.hbase.dao>
+                <hbase1.zookeeper.quorum>BJHC-HBase-Apollo-166106.jd.local:2181,BJHC-HBase-Apollo-166105.jd.local:2181,BJHC-HBase-Apollo-166104.jd.local:2181,BJHC-HBase-Apollo-166103.jd.local:2181,BJHC-HBase-Apollo-166107.jd.local:2181</hbase1.zookeeper.quorum>
+                <hbase1.zookeeper.znode>/hbase_apollo</hbase1.zookeeper.znode>
+
+
+            </properties>
+        </profile>
+
+        <profile>
+            <id>test</id>
+            <properties>
+                <my.scope>compile</my.scope>
+
+                <bean.soputNumSource>3</bean.soputNumSource>
+
+                <bean.soputNumSourceJMQ>3</bean.soputNumSourceJMQ>
+                <bean.soputNumSourceKAFKA>3</bean.soputNumSourceKAFKA>
+
+                <bean.boltNumFilter>1</bean.boltNumFilter>
+                <bean.boltNumColl>3</bean.boltNumColl>
+                <bean.boltNumSourceKey>3</bean.boltNumSourceKey>
+                <bean.boltNumGetValue>3</bean.boltNumGetValue>
+                <bean.boltNumSplit>3</bean.boltNumSplit>
+                <bean.boltNumDataCacheSave>3</bean.boltNumDataCacheSave>
+
+                <bean.boltNumCacherResultKey>3</bean.boltNumCacherResultKey>
+                <bean.boltNumMemoryResultKey>3</bean.boltNumMemoryResultKey>
+                <bean.boltNumResultGeter>3</bean.boltNumResultGeter>
+                <bean.boltNumResultHbaseSave>3</bean.boltNumResultHbaseSave>
+
+                <bean.clean.persistdevice>1</bean.clean.persistdevice>
+                <bean.clean.conndevice>3</bean.clean.conndevice>
+                <bean.clean.targetcal>3</bean.clean.targetcal>
+                <bean.clean.kafka>3</bean.clean.kafka>
+                <bean.clean.kafkaproduce>3</bean.clean.kafkaproduce>
+                <bean.clean.Keypersist>3</bean.clean.Keypersist>
+
+                <log.rdp.path>/export/Logs/mja-sdk-storm/</log.rdp.path>
+
+                <profile.active>test</profile.active>
+
+                <mongodb.url>192.168.202.238</mongodb.url>
+                <mongodb.port>27017</mongodb.port>
+
+                <cacheData.r2m.name>mja-sdk-cacheRes</cacheData.r2m.name>
+                <cacheData.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</cacheData.r2m.zk>
+
+                <cache.r2m.name>mja-sdk-cache</cache.r2m.name>
+                <cache.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</cache.r2m.zk>
+
+                <cacheResData.r2m.name>mja-sdk-result</cacheResData.r2m.name>
+                <cacheResData.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</cacheResData.r2m.zk>
+
+                <device.r2m.name>mja-sdk-device</device.r2m.name>
+                <device.r2m.zk>172.25.46.201:2181,172.25.46.221:2181,172.25.46.241:2181</device.r2m.zk>
+                <kafka.zk>localhost:2181</kafka.zk>
+                <kafka.bootstrap>localhost:9092</kafka.bootstrap>
+                <kafka.zkRoot>/rdp</kafka.zkRoot>
+
+                <kafka.zkservers>localhost</kafka.zkservers>
+                <kafka.zkport>2181</kafka.zkport>
+
+                <result.hbase.dao>hbaseDaoTest</result.hbase.dao>
+                <hbase1.zookeeper.quorum>BJHC-HBase-Apollo-166106.jd.local:2181,BJHC-HBase-Apollo-166105.jd.local:2181,BJHC-HBase-Apollo-166104.jd.local:2181,BJHC-HBase-Apollo-166103.jd.local:2181,BJHC-HBase-Apollo-166107.jd.local:2181</hbase1.zookeeper.quorum>
+                <hbase1.zookeeper.znode>/hbase_apollo</hbase1.zookeeper.znode>
+
+            </properties>
+        </profile>
+
+        <profile>
+            <id>online</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <my.scope>provided</my.scope>
+                <profile.active>online</profile.active>
+
+                <bean.soputNumSource>2</bean.soputNumSource>
+
+
+                <bean.soputNumSourceJMQ>9</bean.soputNumSourceJMQ>
+                <bean.soputNumSourceKAFKA>9</bean.soputNumSourceKAFKA>
+
+                <bean.boltNumFilter>9</bean.boltNumFilter>
+
+
+                <bean.boltNumColl>9</bean.boltNumColl>
+                <bean.boltNumSourceKey>9</bean.boltNumSourceKey>
+
+                <bean.boltNumGetValue>9</bean.boltNumGetValue>
+                <bean.boltNumSplit>9</bean.boltNumSplit>
+                <bean.boltNumDataCacheSave>9</bean.boltNumDataCacheSave>
+
+                <bean.boltNumCacherResultKey>3</bean.boltNumCacherResultKey>
+                <bean.boltNumMemoryResultKey>6</bean.boltNumMemoryResultKey>
+                <bean.boltNumResultGeter>9</bean.boltNumResultGeter>
+                <bean.boltNumResultHbaseSave>9</bean.boltNumResultHbaseSave>
+
+                <bean.clean.init>3</bean.clean.init>
+                <bean.clean.event>9</bean.clean.event>
+                <bean.clean.status>6</bean.clean.status>
+
+                <bean.clean.persistdevice>3</bean.clean.persistdevice>
+                <bean.clean.conndevice>9</bean.clean.conndevice>
+                <bean.clean.targetcal>9</bean.clean.targetcal>
+                <bean.clean.kafka>9</bean.clean.kafka>
+                <bean.clean.kafkaproduce>9</bean.clean.kafkaproduce>
+                <bean.clean.Keypersist>6</bean.clean.Keypersist>
+
+
+
+                <log.rdp.path>/export/Logs/mja-sdk-storm/</log.rdp.path>
+
+                <mongodb.url>172.23.214.87,172.23.214.88,172.23.214.89</mongodb.url>
+                <mongodb.port>30000,30000,30000</mongodb.port>
+
+                <cacheData.r2m.name>mja-sdk-cacheRes</cacheData.r2m.name>
+                <cacheData.r2m.zk>r2m-zkm1.jd.local:2181,r2m-zkm2.jd.local:2181,r2m-zkm3.jd.local:2181</cacheData.r2m.zk>
+
+                <cache.r2m.name>mja-sdk-cache</cache.r2m.name>
+                <cache.r2m.zk>r2m-zkm1.jd.local:2181,r2m-zkm2.jd.local:2181,r2m-zkm3.jd.local:2181</cache.r2m.zk>
+
+                <cacheResData.r2m.name>mja-sdk-result</cacheResData.r2m.name>
+                <cacheResData.r2m.zk>r2m-zkm1.jd.local:2181,r2m-zkm2.jd.local:2181,r2m-zkm3.jd.local:2181</cacheResData.r2m.zk>
+
+                <device.r2m.name>mja-sdk-device</device.r2m.name>
+                <device.r2m.zk>r2m-zkm1.jd.local:2181,r2m-zkm2.jd.local:2181,r2m-zkm3.jd.local:2181</device.r2m.zk>
+
+
+                <kafka.zk>172.23.214.97:2181,172.23.214.98:2181,172.23.214.99:2181</kafka.zk>
+                <kafka.bootstrap>172.23.214.184:9092,172.23.214.193:9092,172.23.214.197:9092</kafka.bootstrap>
+
+                <kafka.zkRoot>/consumers/rdp/offsets</kafka.zkRoot>
+
+                <kafka.zkservers>172.23.214.97,172.23.214.98,172.23.214.99</kafka.zkservers>
+                <kafka.zkport>2181</kafka.zkport>
+
+
+                <result.hbase.dao>hbaseDao</result.hbase.dao>
+                <hbase1.zookeeper.quorum>BJHC-HBase-Apollo-166106.jd.local:2181,BJHC-HBase-Apollo-166105.jd.local:2181,BJHC-HBase-Apollo-166104.jd.local:2181,BJHC-HBase-Apollo-166103.jd.local:2181,BJHC-HBase-Apollo-166107.jd.local:2181</hbase1.zookeeper.quorum>
+                <hbase1.zookeeper.znode>/hbase_apollo</hbase1.zookeeper.znode>
+
+            </properties>
+        </profile>
+    </profiles>
+</project>
